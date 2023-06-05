@@ -21,3 +21,6 @@ class Pet(models.Model):
 class Tutor(models.Model):
     nome = models.CharField(max_length=100)
     email = models.EmailField()
+    telefone = models.CharField(max_length=11)
+    cidade = models.CharField(max_length=20)
+    sobre = models.TextField()

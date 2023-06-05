@@ -3,7 +3,7 @@ from .models import Tutor, Pet
 # Register your models here.
 
 class Tutores(admin.ModelAdmin):
-    list_display = ('id', 'nome', 'email')
+    list_display = ('id', 'nome', 'email', 'cidade')
     list_display_links = ('id', 'nome')
     search_fields = ['nome']
 

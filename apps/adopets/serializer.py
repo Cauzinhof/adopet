@@ -2,9 +2,10 @@ from rest_framework import serializers
 from .models import Tutor, Pet
 
 class TutorSerializer(serializers.ModelSerializer):
+    sobre = serializers.CharField(required=False)
     class Meta:
         model = Tutor
-        fields = '__all__'
+        fields = ['nome', 'email', 'telefone', 'cidade', 'sobre']
 
 class PetSerializer(serializers.ModelSerializer):
     class Meta:
