@@ -17,3 +17,7 @@ class Pet(models.Model):
     caracteristicas = models.CharField(max_length=30)
     cidade = models.CharField(max_length=30)
     estado = models.CharField(max_length=2)
+
+class Tutor(models.Model):
+    nome = models.CharField(max_length=100)
+    email = models.EmailField()
