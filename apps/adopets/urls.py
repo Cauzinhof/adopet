@@ -7,5 +7,5 @@ router.register('tutores', views.TutoresViewSet, basename='Tutores')
 router.register('pets', views.PetsViewSet, basename='Pets')
 
 urlpatterns =[
-    path('', include(router.urls))
+    path('api/', include(router.urls))
 ]
