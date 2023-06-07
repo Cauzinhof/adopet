@@ -8,7 +8,7 @@ class TutorSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tutor
-        fields = ['nome', 'email', 'telefone', 'cidade', 'sobre']
+        fields = ['nome', 'email', 'telefone', 'cidade', 'estado', 'sobre']
 
 class PetSerializer(serializers.ModelSerializer):
     class Meta:
