@@ -24,4 +24,5 @@ class Tutor(models.Model):
     email = models.EmailField()
     telefone = models.CharField(max_length=11)
     cidade = models.CharField(max_length=20)
+    estado = models.CharField(max_length=2, default='MS', blank=False)
     sobre = models.TextField()
