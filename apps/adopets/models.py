@@ -19,6 +19,7 @@ class Pet(models.Model):
     estado = models.CharField(max_length=2)
 
 class Tutor(models.Model):
+    foto = models.ImageField(upload_to='fotos/%Y/%m/%d/', blank=True, default='')
     nome = models.CharField(max_length=100)
     email = models.EmailField()
     telefone = models.CharField(max_length=11)
