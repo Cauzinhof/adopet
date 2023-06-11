@@ -49,3 +49,6 @@ class Adocao(models.Model):
     animal = models.ForeignKey(to='Pet', on_delete=models.CASCADE)
     tutor = models.ForeignKey(to='Tutor', on_delete=models.CASCADE)
     data = models.DateField()
+
+    def __str__(self) -> str:
+        return f'{self.tutor} -> {self.animal}'
