@@ -25,3 +25,7 @@ class PetSerializer(serializers.ModelSerializer):
         model = Pet
         exclude = ['foto']
 
+class AbrigoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Abrigo
+        fields = '__all__'
