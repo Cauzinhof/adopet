@@ -18,7 +18,7 @@ class Pet(models.Model):
     porte = models.CharField(max_length=20, choices=PORTE)
     caracteristicas = models.CharField(max_length=30)
     cidade = models.CharField(max_length=30)
-    estado = models.CharField(max_length=2)
+    estado = models.CharField(max_length=2, default='MS')
     adotado = models.BooleanField(default=False)
 
     def __str__(self) -> str:
