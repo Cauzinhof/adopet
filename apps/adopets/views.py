@@ -26,3 +26,14 @@ class AdocoesViewSet(viewsets.ModelViewSet):
     """Exibindo todas as adoções"""
     queryset=Adocao.objects.all()
     serializer_class = AdocaoSerializer
+
+    def perform_create(self, serializer):
+        serializer.save()
+        pet = Pet.objects.filter(pk=self.request.POST['animal'])
+        pet.update(adotado=True)
+
+    def perform_destroy(self, instance):
+        pet_id = instance.animal.id
+        pet = Pet.objects.filter(pk=pet_id)
+        pet.update(adotado=False)
+        instance.delete()
