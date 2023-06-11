@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from .models import Tutor, Pet, Abrigo
+from .models import Tutor, Pet, Abrigo, Adocao
 from rest_framework import viewsets
-from .serializer import TutorSerializer, PetSerializer, AbrigoSerializer
+from .serializer import TutorSerializer, PetSerializer, AbrigoSerializer, AdocaoSerializer
 import requests
 # Create your views here.
 
@@ -19,3 +19,8 @@ class AbrigosViewSet(viewsets.ModelViewSet):
     """Exibindo todos os abrigos"""
     queryset=Abrigo.objects.all()
     serializer_class = AbrigoSerializer
+
+class AdocoesViewSet(viewsets.ModelViewSet):
+    """Exibindo todas as adoções"""
+    queryset=Adocao.objects.all()
+    serializer_class = AdocaoSerializer

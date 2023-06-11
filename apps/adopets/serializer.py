@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Tutor, Pet, Abrigo
+from .models import Tutor, Pet, Abrigo, Adocao
 from .validators import *
 
 class TutorSerializer(serializers.ModelSerializer):
@@ -53,3 +53,8 @@ class AbrigoSerializer(serializers.ModelSerializer):
         if not chars_valido(attrs['estado']):
             raise serializers.ValidationError({'estado':"Insira a sigla do estado"})
         return attrs
+
+class AdocaoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Adocao
+        fields = '__all__'
