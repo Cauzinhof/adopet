@@ -1,8 +1,7 @@
-from django.shortcuts import render
 from .models import Tutor, Pet, Abrigo, Adocao
-from rest_framework import viewsets
+from rest_framework import viewsets, filters
+from django_filters.rest_framework import DjangoFilterBackend
 from .serializer import TutorSerializer, PetSerializer, AbrigoSerializer, AdocaoSerializer
-import requests
 # Create your views here.
 
 class TutoresViewSet(viewsets.ModelViewSet):
@@ -12,8 +11,11 @@ class TutoresViewSet(viewsets.ModelViewSet):
     
 class PetsViewSet(viewsets.ModelViewSet):
     """Exibindo todos os pets"""
-    queryset=Pet.objects.all()
+    queryset=Pet.objects.filter(adotado=False)
     serializer_class = PetSerializer
+    #filtro
+    #filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    #ordering_fields = ['nome', 'id',]
 
 class AbrigosViewSet(viewsets.ModelViewSet):
     """Exibindo todos os abrigos"""
