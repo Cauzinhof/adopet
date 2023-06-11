@@ -21,6 +21,9 @@ class Pet(models.Model):
     estado = models.CharField(max_length=2)
     adotado = models.BooleanField(default=False)
 
+    def __str__(self) -> str:
+        return f'Pet {self.nome}'
+
 class Tutor(models.Model):
     foto = models.ImageField(upload_to='fotos/%Y/%m/%d/', blank=True, default='')
     nome = models.CharField(max_length=100)
@@ -30,8 +33,14 @@ class Tutor(models.Model):
     estado = models.CharField(max_length=2, default='MS', blank=False)
     sobre = models.TextField()
 
+    def __str__(self) -> str:
+        return f'Tutor {self.nome}'
+
 class Abrigo(models.Model):
     nome = models.CharField(max_length=30)
     email = models.EmailField(unique=True)
     cidade = models.CharField(max_length=20)
     estado = models.CharField(max_length=2, default='MS', blank=False)
+
+    def __str__(self) -> str:
+        return f'Abrigo {self.nome}'
