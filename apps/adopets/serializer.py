@@ -12,7 +12,7 @@ class TutorSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if not chars_valido(attrs['nome']):
             raise serializers.ValidationError({'nome':"O nome deve conter apenas letras"})
-        if not telehone_valido(attrs['telefone']):
+        if not telefone_valido(attrs['telefone']):
             raise serializers.ValidationError({'telefone':"O telefone deve ser no formato XX XXXXX-XXXX"})
         if not chars_valido(attrs['cidade']):
             raise serializers.ValidationError({'cidade':"A cidade deve conter apenas letras"})
@@ -25,7 +25,25 @@ class PetSerializer(serializers.ModelSerializer):
         model = Pet
         exclude = ['foto']
 
+    def validate(self, attrs):
+        if not chars_valido(attrs['nome']):
+            raise serializers.ValidationError({'nome':"O nome deve conter apenas letras"})
+        if not chars_valido(attrs['cidade']):
+            raise serializers.ValidationError({'cidade':"A cidade deve conter apenas letras"})
+        if not chars_valido(attrs['estado']):
+            raise serializers.ValidationError({'estado':"Insira a sigla do estado"})
+        return attrs
+
 class AbrigoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Abrigo
         fields = '__all__'
+
+    def validate(self, attrs):
+        if not chars_valido(attrs['nome']):
+            raise serializers.ValidationError({'nome':"O nome deve conter apenas letras"})
+        if not chars_valido(attrs['cidade']):
+            raise serializers.ValidationError({'cidade':"A cidade deve conter apenas letras"})
+        if not chars_valido(attrs['estado']):
+            raise serializers.ValidationError({'estado':"Insira a sigla do estado"})
+        return attrs
