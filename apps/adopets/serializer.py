@@ -25,7 +25,7 @@ class TutorSerializer(serializers.ModelSerializer):
 class PetSerializer(serializers.ModelSerializer):
     class Meta:
         model = Pet
-        exclude = ['foto']
+        fields = '__all__'
 
     def validate(self, attrs):
         if self.partial:
