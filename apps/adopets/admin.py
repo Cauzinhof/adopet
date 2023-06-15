@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Tutor, Pet, Adocao
+from .models import Tutor, Pet, Adocao, Abrigo
 # Register your models here.
 
 class Tutores(admin.ModelAdmin):
@@ -22,3 +22,10 @@ class Adocoes(admin.ModelAdmin):
     search_fields = ['tutor', 'animal']
 
 admin.site.register(Adocao, Adocoes)
+
+class Abrigos(admin.ModelAdmin):
+    list_display = ('id', 'nome', 'email')
+    list_display_links = ('id', 'nome')
+    search_fields = ['nome']
+
+admin.site.register(Abrigo, Abrigos)
