@@ -1,13 +1,13 @@
 from rest_framework import serializers
-from .models import Tutor, Pet, Abrigo, Adocao
+from .models import BaseUser, Pet, Abrigo, Adocao
 from .validators import *
 
 class TutorSerializer(serializers.ModelSerializer):
     sobre = serializers.CharField(required=False)
 
     class Meta:
-        model = Tutor
-        fields = ['nome', 'email', 'telefone', 'cidade', 'estado', 'sobre']
+        model = BaseUser
+        fields = ['id','nome', 'email', 'telefone', 'cidade', 'estado', 'sobre']
 
     def validate(self, attrs):
         if self.partial:
@@ -23,9 +23,10 @@ class TutorSerializer(serializers.ModelSerializer):
         return attrs
 
 class PetSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Pet
-        fields = '__all__'
+        exclude = ['tutor', 'abrigo']
 
     def validate(self, attrs):
         if self.partial:
@@ -46,12 +47,8 @@ class AbrigoSerializer(serializers.ModelSerializer):
     def validate(self, attrs):
         if self.partial:
             return attrs
-        if not chars_valido(attrs['nome']):
+        if not chars_valido(attrs['nome_abrigo']):
             raise serializers.ValidationError({'nome':"O nome deve conter apenas letras"})
-        if not chars_valido(attrs['cidade']):
-            raise serializers.ValidationError({'cidade':"A cidade deve conter apenas letras"})
-        if not chars_valido(attrs['estado']):
-            raise serializers.ValidationError({'estado':"Insira a sigla do estado"})
         return attrs
 
 class AdocaoSerializer(serializers.ModelSerializer):
