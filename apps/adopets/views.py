@@ -19,6 +19,29 @@ class PetsViewSet(viewsets.ModelViewSet):
     #filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
     #ordering_fields = ['nome', 'id',]
 
+    def perform_create(self, serializer):
+        tutor_id = self.request.user.id
+        abrigo = Abrigo.objects.get(user=tutor_id)
+        serializer.validated_data['abrigo'] = abrigo
+        serializer.save()
+    
+    def perform_destroy(self, instance):
+
+        #Verifica se quem solicitou a alteração é o mesmo usuário que criou o pet
+        user_id = instance.abrigo.user.id
+        if not (user_id == self.request.user.id or self.request.user.is_superuser):
+            raise ValidationError("Apenas administrador ou o abrigo que adicionou o pet pode removê-lo")
+    
+        instance.delete()
+    
+    def perform_update(self, serializer):
+        #Verifica se quem solicitou a alteração é o mesmo usuário que criou o pet
+        user_id = serializer.validated_data['abrigo'].user.id
+        if not (user_id == self.request.user.id or self.request.user.is_superuser):
+            raise ValidationError("Apenas administrador ou o abrigo que adicionou o pet pode alterá-lo")
+        
+        serializer.save()
+
 class AbrigosViewSet(viewsets.ModelViewSet):
     """Exibindo todos os abrigos"""
     queryset=Abrigo.objects.all()

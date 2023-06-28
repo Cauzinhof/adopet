@@ -23,9 +23,10 @@ class TutorSerializer(serializers.ModelSerializer):
         return attrs
 
 class PetSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Pet
-        fields = '__all__'
+        exclude = ['tutor', 'abrigo']
 
     def validate(self, attrs):
         if self.partial:
