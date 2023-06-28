@@ -1,23 +1,93 @@
-from django.shortcuts import render
-from .models import Tutor, Pet
-from rest_framework import viewsets
-from .serializer import TutorSerializer, PetSerializer
-import requests
+from .models import BaseUser, Pet, Abrigo, Adocao
+from rest_framework import viewsets, filters
+from django_filters.rest_framework import DjangoFilterBackend
+from .serializer import TutorSerializer, PetSerializer, AbrigoSerializer, AdocaoSerializer
+from django.core.exceptions import ValidationError
+from django.contrib.auth.models import Permission
 # Create your views here.
-
-API_URL = 'http://127.0.0.1:8000/api/'
 
 class TutoresViewSet(viewsets.ModelViewSet):
     """Exibindo todos os tutores"""
-    queryset=Tutor.objects.all()
+    queryset=BaseUser.objects.filter(eh_tutor=True)
     serializer_class = TutorSerializer
     
 class PetsViewSet(viewsets.ModelViewSet):
     """Exibindo todos os pets"""
-    queryset=Pet.objects.all()
+    queryset=Pet.objects.filter(adotado=False)
     serializer_class = PetSerializer
+    #filtro
+    #filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
+    #ordering_fields = ['nome', 'id',]
 
-def index(request):
-    response = requests.get(API_URL+'tutores')
-    data = response.json()
-    return render(request, 'adopets/index.html', {'tutores':data})
+    def perform_create(self, serializer):
+        tutor_id = self.request.user.id
+        abrigo = Abrigo.objects.get(user=tutor_id)
+        serializer.validated_data['abrigo'] = abrigo
+        serializer.save()
+    
+    def perform_destroy(self, instance):
+
+        #Verifica se quem solicitou a alteração é o mesmo usuário que criou o pet
+        user_id = instance.abrigo.user.id
+        if not (user_id == self.request.user.id or self.request.user.is_superuser):
+            raise ValidationError("Apenas administrador ou o abrigo que adicionou o pet pode removê-lo")
+    
+        instance.delete()
+    
+    def perform_update(self, serializer):
+        #Verifica se quem solicitou a alteração é o mesmo usuário que criou o pet
+        user_id = serializer.validated_data['abrigo'].user.id
+        if not (user_id == self.request.user.id or self.request.user.is_superuser):
+            raise ValidationError("Apenas administrador ou o abrigo que adicionou o pet pode alterá-lo")
+        
+        serializer.save()
+
+class AbrigosViewSet(viewsets.ModelViewSet):
+    """Exibindo todos os abrigos"""
+    queryset=Abrigo.objects.all()
+    serializer_class = AbrigoSerializer
+    http_method_names = ['get', 'post', 'delete']
+
+    def perform_create(self, serializer):
+        #Apenas superusuários serão capazes fazer a criação e deleção de abrigos(padrão django)
+        tutor = BaseUser.objects.get(pk=self.request.POST['user'])
+
+        #Permissões
+        add_adocao = Permission.objects.get(codename='add_adocao')
+        change_adocao = Permission.objects.get(codename='change_adocao')
+        delete_adocao = Permission.objects.get(codename='delete_adocao')
+        add_pet = Permission.objects.get(codename='add_pet')
+        change_pet = Permission.objects.get(codename='change_pet')
+        delete_pet = Permission.objects.get(codename='delete_pet')
+
+        tutor.user_permissions.add(add_adocao, change_adocao, delete_adocao)
+        tutor.user_permissions.add(add_pet, change_pet, delete_pet)
+
+        tutor.eh_tutor = False
+        tutor.save()
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        tutor_id = instance.user.id
+        tutor = BaseUser.objects.get(pk=tutor_id)
+        tutor.eh_tutor = True
+        tutor.save()
+        #Ao deletear o abrigo, todas as permissões serão redefinidas
+        tutor.user_permissions.clear()
+        instance.delete()
+
+class AdocoesViewSet(viewsets.ModelViewSet):
+    """Exibindo todas as adoções"""
+    queryset=Adocao.objects.all()
+    serializer_class = AdocaoSerializer
+
+    def perform_create(self, serializer):
+        serializer.save()
+        pet = Pet.objects.filter(pk=self.request.POST['animal'])
+        pet.update(adotado=True)
+
+    def perform_destroy(self, instance):
+        pet_id = instance.animal.id
+        pet = Pet.objects.filter(pk=pet_id)
+        pet.update(adotado=False)
+        instance.delete()
