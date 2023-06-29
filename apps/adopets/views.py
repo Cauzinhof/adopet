@@ -8,7 +8,9 @@ class TutoresViewSet(viewsets.ModelViewSet):
     """Exibindo todos os tutores"""
     queryset=BaseUser.objects.filter(eh_tutor=True)
     serializer_class = TutorSerializer
-    
+
+
+
 class PetsViewSet(viewsets.ModelViewSet):
     """Exibindo todos os pets"""
     queryset=Pet.objects.filter(adotado=False)
