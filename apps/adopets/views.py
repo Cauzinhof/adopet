@@ -1,10 +1,8 @@
 from .models import BaseUser, Pet, Abrigo, Adocao
-from rest_framework import viewsets, filters
-from django_filters.rest_framework import DjangoFilterBackend
+from rest_framework import viewsets
 from .serializer import TutorSerializer, PetSerializer, AbrigoSerializer, AdocaoSerializer
 from django.core.exceptions import ValidationError
 from django.contrib.auth.models import Permission
-# Create your views here.
 
 class TutoresViewSet(viewsets.ModelViewSet):
     """Exibindo todos os tutores"""
@@ -15,9 +13,6 @@ class PetsViewSet(viewsets.ModelViewSet):
     """Exibindo todos os pets"""
     queryset=Pet.objects.filter(adotado=False)
     serializer_class = PetSerializer
-    #filtro
-    #filter_backends = [DjangoFilterBackend, filters.OrderingFilter, filters.SearchFilter]
-    #ordering_fields = ['nome', 'id',]
 
     def perform_create(self, serializer):
         tutor_id = self.request.user.id
@@ -28,14 +23,14 @@ class PetsViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
 
         #Verifica se quem solicitou a alteração é o mesmo usuário que criou o pet
-        user_id = instance.abrigo.user.id
-        if not (user_id == self.request.user.id or self.request.user.is_superuser):
+        user_do_abrigo_id = instance.abrigo.user.id
+        if not (user_do_abrigo_id == self.request.user.id or self.request.user.is_superuser):
             raise ValidationError("Apenas administrador ou o abrigo que adicionou o pet pode removê-lo")
     
         instance.delete()
     
     def perform_update(self, serializer):
-        #Verifica se quem solicitou a alteração é o mesmo usuário que criou o pet
+        """Antes do update, verifica se quem solicitou a alteração é o mesmo usuário que criou o pet"""
         user_id = serializer.validated_data['abrigo'].user.id
         if not (user_id == self.request.user.id or self.request.user.is_superuser):
             raise ValidationError("Apenas administrador ou o abrigo que adicionou o pet pode alterá-lo")
@@ -62,7 +57,7 @@ class AbrigosViewSet(viewsets.ModelViewSet):
 
         tutor.user_permissions.add(add_adocao, change_adocao, delete_adocao)
         tutor.user_permissions.add(add_pet, change_pet, delete_pet)
-
+        #O abrigo é etirado da lista de tutores
         tutor.eh_tutor = False
         tutor.save()
         serializer.save()
@@ -70,6 +65,7 @@ class AbrigosViewSet(viewsets.ModelViewSet):
     def perform_destroy(self, instance):
         tutor_id = instance.user.id
         tutor = BaseUser.objects.get(pk=tutor_id)
+        #O abrigo retorna para lista de tutores
         tutor.eh_tutor = True
         tutor.save()
         #Ao deletear o abrigo, todas as permissões serão redefinidas
@@ -80,14 +76,26 @@ class AdocoesViewSet(viewsets.ModelViewSet):
     """Exibindo todas as adoções"""
     queryset=Adocao.objects.all()
     serializer_class = AdocaoSerializer
+    http_method_names = ['get', 'post', 'delete']
 
     def perform_create(self, serializer):
+        pet = Pet.objects.get(pk=self.request.POST['animal'])
+        #Verifica se o pet está no abrigo fazendo a requisição
+        if not (pet.abrigo.id == self.request.user or self.request.user.is_superuser):
+            raise ValidationError("Apenas administrador ou o abrigo que adicionou o pet pode alterá-lo")
+
+        pet.adotado=True
+        pet.save()
         serializer.save()
-        pet = Pet.objects.filter(pk=self.request.POST['animal'])
-        pet.update(adotado=True)
 
     def perform_destroy(self, instance):
+        user_do_abrigo_id = instance.animal.abrigo.id
+        #Verifica se o abrigo responsável pelo pet, ou o admin, está fazendo essa alteração
+        if not (user_do_abrigo_id == self.request.user.id or self.request.user.is_superuser):
+            raise ValidationError("Apenas administrador ou o abrigo responsável pode fazer essa alteração")
+        
         pet_id = instance.animal.id
-        pet = Pet.objects.filter(pk=pet_id)
-        pet.update(adotado=False)
+        pet = Pet.objects.get(pk=pet_id)
+        pet.adotado=False
+        pet.save()
         instance.delete()
