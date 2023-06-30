@@ -33,7 +33,6 @@ class Pet(models.Model):
         ('G', 'Porte grande')
     ]
 
-    foto = models.ImageField(upload_to='fotos/pets/', blank=True, default='')
     abrigo = models.ForeignKey(to='Abrigo', on_delete=models.CASCADE, null=True)
     nome = models.CharField(max_length=20)
     idade = models.CharField(max_length=30)
@@ -42,6 +41,7 @@ class Pet(models.Model):
     cidade = models.CharField(max_length=30)
     estado = models.CharField(max_length=2, default='MS')
     adotado = models.BooleanField(default=False)
+    foto = models.ImageField(upload_to=f'fotos/pets/{nome}', blank=True, default='')
     tutor = models.ForeignKey(to='BaseUser', on_delete=models.DO_NOTHING, default=None, blank=True, null=True)
 
     def __str__(self) -> str:
